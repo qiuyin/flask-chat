@@ -3,9 +3,36 @@
 <head>
     <title>Chat</title>
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <style>
+        html {
+            height: 100%;
+        }
+        
+        body {
+            height: 100%;
+            margin: 0;
+        }
+        #content_box {
+            position: absolute;
+            bottom: 0px;
+            left: 30%;
+            padding-left: 10px;
+         }
+        .-active {
+            background: black;
+            color: white;
+        }
+        .channel_list {
+            float:left;
+            width: 30%;
+            height: 100%; 
+            border-right: solid 1px black;
+            border-bottom: solid 1px black;
+        }
+    </style>
     <script type="text/javascript" charset="utf-8">
-        var active_channel = "";
+        var active_channel = "channel1";
         var messages = { 'channel1': [], 'channel2': [] };
 
         $(document).ready(function() {
@@ -59,38 +86,11 @@
             });
         });
     </script>
-    <style>
-        html {
-            height: 100%;
-        }
-        
-        body {
-            height: 100%;
-            margin: 0;
-        }
-        #content_box {
-            position: absolute;
-            bottom: 0px;
-            left: 30%;
-            padding-left: 10px;
-         }
-        .-active {
-            background: black;
-            color: white;
-        }
-        .channel_list {
-            float:left;
-            width: 30%;
-            height: 100%; 
-            border-right: solid 1px black;
-            border-bottom: solid 1px black;
-        }
-    </style>
 </head>
 <body>
     <div style="width: 100%; height: 100%;">
         <div class="channel_list">
-            <div class="channel_name" id="channel1">channel #1</div>
+            <div class="channel_name -active" id="channel1">channel #1</div>
             <div class="channel_name" id="channel2">channel #2</div>
         </div>
         <div style="float:right; width: 70%">
@@ -98,7 +98,7 @@
             <div id="content"></div>
             <div>
                 <form id="send_room" method="POST" action='#'>
-                <input type="text" id="message_input" disabled/>
+                <input type="text" id="message_input" />
                 <input type="submit" value="send" />
                 </form>
             </div>
