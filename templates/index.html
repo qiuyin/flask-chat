@@ -13,23 +13,106 @@
             height: 100%;
             margin: 0;
         }
-        #content_box {
+
+        .container {
+            width: 50%;
+            height: 100%;
+            margin: auto;
+        }
+
+        div#channel_list {
+            width: 30%;
+            height: 100%;
+            float: left;
+            border-right: solid 1px black;
+        }
+
+        div#right_box {
+            width: 69%;
+            height: 100%;
+            float: right;
+        }
+
+        .content_box {
             position: absolute;
-            bottom: 0px;
-            left: 30%;
-            padding-left: 10px;
+            bottom: 0;
+        }
+
+        .channel_name {
+            padding: 2px;
+        }
+
+        .no-wrap {
+            clear: both;
          }
+
+        .message_box {
+            font-size: 30px;
+        }
+
         .-active {
-            background: black;
+            background: rgb(116, 106, 106);
             color: white;
         }
-        .channel_list {
-            float:left;
-            width: 30%;
-            height: 100%; 
-            border-right: solid 1px black;
-            border-bottom: solid 1px black;
-        }
+
+        .typing-indicator {
+            background-color: #E6E7ED;
+            will-change: transform;
+            width: auto;
+            border-radius: 50px;
+            padding: 5px;
+            display: table;
+            position: relative;
+            -webkit-animation: 2s bulge infinite ease-out;
+                    animation: 2s bulge infinite ease-out;
+          }
+          .typing-indicator span {
+            height: 5px;
+            width: 5px;
+            float: left;
+            margin: 0 1px;
+            background-color: rgb(6, 236, 37);
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+          }
+          .typing-indicator span:nth-of-type(1) {
+            -webkit-animation: 1s blink infinite 0.3333s;
+                    animation: 1s blink infinite 0.3333s;
+          }
+          .typing-indicator span:nth-of-type(2) {
+            -webkit-animation: 1s blink infinite 0.6666s;
+                    animation: 1s blink infinite 0.6666s;
+          }
+          .typing-indicator span:nth-of-type(3) {
+            -webkit-animation: 1s blink infinite 0.9999s;
+                    animation: 1s blink infinite 0.9999s;
+          }
+          
+          @-webkit-keyframes blink {
+            50% {
+              opacity: 1;
+            }
+          }
+          
+          @keyframes blink {
+            50% {
+              opacity: 1;
+            }
+          }
+          @-webkit-keyframes bulge {
+            50% {
+              -webkit-transform: scale(1.05);
+                      transform: scale(1.05);
+            }
+          }
+          @keyframes bulge {
+            50% {
+              -webkit-transform: scale(1.05);
+                      transform: scale(1.05);
+            }
+          }
+          
     </style>
     <script type="text/javascript" charset="utf-8">
         var active_channel = "channel1";
@@ -54,12 +137,24 @@
                 $('#content').append('<br>' + $('<div/>').text(msg).html());
             };
 
+            var show_typing = function() {
+                $(".typing-indicator").stop(true, true).show();
+                $(".typing-indicator").delay(2000).fadeOut(1000);
+            };
+
             socket.on('my_response', function(msg) {
                 if(msg.room != undefined) {
                     messages[msg.room].push(msg.data);
                 }
                 show_message();
             });
+
+            socket.on('inputing', function(msg) {
+                if(msg.room != undefined && msg.room === active_channel) {
+                    show_typing();
+                }
+            });
+
             socket.emit('join', {room: "channel1"});
             socket.emit('join', {room: "channel2"});
 
@@ -67,6 +162,7 @@
                 socket.emit('leave', {room: $('#leave_room').val()});
                 return false;
             });
+
             $('form#send_room').submit(function(event) {
                 socket.emit('my_room_event', {room: active_channel, data: $('#message_input').val()});
                 $('#message_input').val("");
@@ -77,6 +173,11 @@
                 socket.emit('disconnect_request');
                 return false;
             });
+
+            $("#message_input").keypress(function() {
+                socket.emit('inputing', {room: active_channel});
+            })
+
             $(".channel_name").click(function(e) {
                 $(".channel_name").removeClass("-active");
                 $(e.target).addClass("-active");
@@ -88,22 +189,26 @@
     </script>
 </head>
 <body>
-    <div style="width: 100%; height: 100%;">
-        <div class="channel_list">
+    <div class="container">
+        <div id="channel_list">
             <div class="channel_name -active" id="channel1">channel #1</div>
             <div class="channel_name" id="channel2">channel #2</div>
         </div>
-        <div style="float:right; width: 70%">
-          <div id="content_box">
-            <div id="content"></div>
-            <div>
-                <form id="send_room" method="POST" action='#'>
-                <input type="text" id="message_input" />
-                <input type="submit" value="send" />
-                </form>
+        <div id="right_box">
+            <div class="content_box">
+                <div id="content"></div>
+                <div class="typing-indicator" style="display: none">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div>
+                    <form id="send_room" method="POST" action='#'>
+                        <input type="text" class="message_box" id="message_input" />
+                        <button type="submit" class="message_box">Send</button>
+                    </form>
+                </div>
             </div>
-            </div>
-          </div>
         </div>
     </div>
 </body>

@@ -1,4 +1,3 @@
- # -*- coding: utf-8 -*-
 from threading import Lock
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
@@ -21,9 +20,15 @@ def join(message):
 @socketio.on('my_room_event', namespace='/chat')
 def send_room_message(message):
     emit('my_response',
-         {'data': message['data'], 'room': message['room']},
+         {'data': 'user ' + request.sid + ': ' + message['data'], 'room': message['room']},
          room=message['room'])
 
 
+@socketio.on('inputing', namespace='/chat')
+def send_typing_indicator(message):
+    emit('inputing',
+         {'room': message['room']},
+         room=message['room'])
+
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host="0.0.0.0", debug=True)
